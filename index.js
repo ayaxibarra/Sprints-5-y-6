@@ -5,6 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 
 const connectDB = require("./config/db");
+const productoRoutes = require("./routes/productoRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +20,15 @@ app.get("/api/health", (req, res) => {
       mongoose.connection.readyState === 1
         ? "connected"
         : "disconnected",
+  });
+});
+
+app.use("/api/productos", productoRoutes);
+
+app.use((error, req, res, _next) => {
+  const status = error.status || 500;
+  res.status(status).json({
+    mensaje: error.message || "Error interno del servidor",
   });
 });
 
