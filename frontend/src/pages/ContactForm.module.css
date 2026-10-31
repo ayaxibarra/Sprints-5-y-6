@@ -1,0 +1,120 @@
+.seccion {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0.5rem 0 2rem;
+  font-family: Inter, system-ui, sans-serif;
+  color: #29231f;
+}
+
+.titulo {
+  margin: 0 0 0.5rem;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 700;
+  color: #a0522d;
+}
+
+.titulo::after {
+  content: "";
+  display: block;
+  width: 4rem;
+  height: 3px;
+  margin-top: 0.6rem;
+  background: #d4a437;
+  border-radius: 2px;
+}
+
+.bajada {
+  margin: 0 0 1.5rem;
+  max-width: 36rem;
+  color: #4a4039;
+}
+
+.exito {
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.4rem;
+  background: #eef4e8;
+  border: 1px solid #87a96b;
+  color: #3d5230;
+}
+
+.formulario {
+  display: grid;
+  gap: 1.1rem;
+  padding: 1.5rem;
+  background: #fffaf3;
+  border: 1px solid #d4a437;
+  border-radius: 0.5rem;
+}
+
+.campo {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.etiqueta {
+  font-weight: 600;
+  color: #29231f;
+}
+
+.entrada,
+.area {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.6rem 0.75rem;
+  font: inherit;
+  color: #29231f;
+  background: #f5e6d3;
+  border: 2px solid #c4a484;
+  border-radius: 0.35rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.area {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.entrada:focus,
+.area:focus {
+  outline: none;
+  border-color: #87a96b;
+  box-shadow: 0 0 0 3px rgba(135, 169, 107, 0.35);
+}
+
+.entradaInvalida,
+.areaInvalida {
+  border-color: #b42318;
+}
+
+.error {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #b42318;
+}
+
+button.enviar {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0.65rem 1.4rem;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: #a0522d;
+  border: 2px solid #a0522d;
+  border-radius: 0.35rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+button.enviar:hover {
+  background: #87a96b;
+  border-color: #87a96b;
+  color: #fff;
+}
+
+button.enviar:focus-visible {
+  outline: 3px solid #29231f;
+  outline-offset: 3px;
+}
