@@ -12,7 +12,9 @@ import { Home } from './pages/Home.jsx';
 import ProductList from './pages/ProductList.jsx';
 import ProductDetail from './pages/ProductDetail.jsx';
 import ContactForm from './pages/Contact.jsx';
+import AdminProductos from './pages/AdminProductos.jsx';
 import CreateProduct from './pages/CreateProduct.jsx';
+import EditProduct from './pages/EditProduct.jsx';
 import './App.css';
 
 export default function App() {
@@ -47,6 +49,9 @@ export default function App() {
           <Route path="/carrito" element={<Cart items={carrito} onQuitar={quitar} />} />
           <Route path="/contacto" element={<ContactForm />} />
           <Route path="/admin/crear-producto" element={<CreateProduct />} />
+          <Route path="/admin" element={<AdminProductos />} />
+          <Route path="/admin/crear-producto" element={<CreateProduct />} />
+          <Route path="/admin/:id/editar" element={<EditProduct />} />
         </Routes>
       </main>
       

@@ -9,8 +9,10 @@ const productoRoutes = require("./routes/productoRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const FRONT = process.env.FRONTEND_URL
 
 app.use(cors());
+app.use(cors({ origin: FRONT }));
 app.use(express.json());
 
 app.get("/api/health", (req, res) => {

@@ -1,6 +1,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getProducts } from "../services/productService.js";
+import { aVistaPublica } from "../utils/producto.js";
 
 // Consulta el catálogo completo. Compartido por Home y ProductList.
 export function useProducts() {
@@ -16,12 +17,20 @@ export function useProducts() {
 
     getProducts({ signal: controller.signal })
       .then((products) =>
-        setResult({ attempt, products, error: null })
+        setResult({
+          attempt,
+          products: products.map(aVistaPublica),
+          error: null,
+        })
       )
       .catch((error) => {
         if (error.name === "AbortError") return;
 
-        setResult({ attempt, products: [], error });
+        setResult({
+          attempt,
+          products: [],
+          error,
+        });
       });
 
     return () => controller.abort();

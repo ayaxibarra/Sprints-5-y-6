@@ -1,21 +1,39 @@
+
 import { useCallback, useEffect, useState } from "react";
 import { getProductById } from "../services/productService.js";
+import { aVistaPublica } from "../utils/producto.js";
 
 // Consulta un producto por id. Al cambiar el id (o reintentar) vuelve a estado de carga
 // sin mostrar el producto anterior.
 export function useProduct(id) {
   const [attempt, setAttempt] = useState(0);
-  const [result, setResult] = useState({ key: null, product: null, error: null });
+  const [result, setResult] = useState({
+    key: null,
+    product: null,
+    error: null,
+  });
+
   const key = `${id}#${attempt}`;
 
   useEffect(() => {
     const controller = new AbortController();
 
     getProductById(id, { signal: controller.signal })
-      .then((product) => setResult({ key, product, error: null }))
+      .then((product) =>
+        setResult({
+          key,
+          product: aVistaPublica(product),
+          error: null,
+        })
+      )
       .catch((error) => {
         if (error.name === "AbortError") return;
-        setResult({ key, product: null, error });
+
+        setResult({
+          key,
+          product: null,
+          error,
+        });
       });
 
     return () => controller.abort();

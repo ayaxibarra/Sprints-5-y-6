@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard.jsx';
 import { getProducts } from '../services/productService.js';
+import { aVistaPublica } from '../utils/producto.js';
 
 export function Home() {
     const [productosDestacados, setProductosDestacados] = useState([]);
@@ -14,7 +15,7 @@ export function Home() {
         getProducts()
             .then(data => {
                 if (!activo) return;
-                setProductosDestacados(data.slice(0, 4));
+                setProductosDestacados(data.slice(0, 4).map(aVistaPublica));
                 setCargando(false);
             })
             .catch(err => {
@@ -58,7 +59,7 @@ export function Home() {
                     {!cargando && !error && (
                         <ul id="productos-destacados" className="productos-grid">
                             {productosDestacados.map((producto) => (
-                                <li key={producto.id}>
+                                <li key={producto._id}>
                                     <ProductCard
                                         product={producto}
                                         onSelect={() => navigate(`/productos/${producto.id}`)}
