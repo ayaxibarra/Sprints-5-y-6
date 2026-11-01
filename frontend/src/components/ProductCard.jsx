@@ -1,14 +1,17 @@
+import { resolveImageSrc } from "../utils/imagen.js";
+
 function formatPrice(price) {
   return `$${Number(price).toLocaleString("es-AR")}`;
 }
 
 export default function ProductCard({ product, onSelect, onAddToCart, headingLevel = 3 }) {
   const Titulo = `h${headingLevel}`;
+  const imagen = resolveImageSrc(product.img);
 
   return (
     <article className="card">
       <img
-        src={`${import.meta.env.BASE_URL}${product.img}`}
+        src={imagen}
         alt={product.name}
         loading="lazy"
       />

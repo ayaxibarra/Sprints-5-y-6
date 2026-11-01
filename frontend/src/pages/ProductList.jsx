@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { getProducts } from "../services/productService.js";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useProducts } from "../hooks/useProducts.js";
 import ProductCard from '../components/ProductCard.jsx';
 
 // Minúsculas y sin tildes: "sillon" encuentra "Sillón Copacabana".
@@ -11,41 +12,16 @@ function normalizar(texto) {
 }
 
 // Props (contrato definido por App.jsx):
-//   onVerDetalle(id) → App abre el detalle de ese producto.
 //   onAgregarAlCarrito(producto) → App agrega al carrito (opcional).
-export default function ProductList({ onVerDetalle, onAgregarAlCarrito }) {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [attempt, setAttempt] = useState(0); // cambia al reintentar
+// El detalle se abre navegando a /productos/:id (React Router), sin prop intermedia.
+export default function ProductList({ onAgregarAlCarrito }) {
+  const navigate = useNavigate();
+  const { products, loading, error, retry } = useProducts();
 
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("");
 
-  useEffect(() => {
-    let cancelled = false;
 
-    setLoading(true);
-    setError(null);
-
-    getProducts()
-      .then((data) => {
-        if (!cancelled) setProducts(data);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err.message);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    // Evita actualizar estado si el componente se desmontó.
-    return () => {
-      cancelled = true;
-    };
-  }, [attempt]);
-
-  const retry = () => setAttempt((n) => n + 1);
 
   // Búsqueda por nombre + orden, calculados sobre la lista ya cargada
   // (no se hace otra consulta a la API).
@@ -58,7 +34,7 @@ export default function ProductList({ onVerDetalle, onAgregarAlCarrito }) {
 
     if (sort === "price-low") return [...filtrados].sort((a, b) => a.price - b.price);
     if (sort === "price-high") return [...filtrados].sort((a, b) => b.price - a.price);
-    if (sort === "newest") return [...filtrados].sort((a, b) => b.id - a.id);
+    if (sort === "newest") return [...filtrados].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return filtrados;
   }, [products, search, sort]);
 
@@ -82,7 +58,7 @@ export default function ProductList({ onVerDetalle, onAgregarAlCarrito }) {
   if (error) {
     return envolver(
       <div className="estado-catalogo estado-error" role="alert">
-        <p>{error}</p>
+        <p>{error.message}</p>
         <button type="button" className="btn-primary" onClick={retry}>
           Reintentar
         </button>
@@ -106,6 +82,7 @@ export default function ProductList({ onVerDetalle, onAgregarAlCarrito }) {
               <option value="">Destacados</option>
               <option value="price-low">Precio: Menor a Mayor</option>
               <option value="price-high">Precio: Mayor a Menor</option>
+              <option value="newest">Más recientes</option>
 
             </select>
           </div>
@@ -162,7 +139,7 @@ export default function ProductList({ onVerDetalle, onAgregarAlCarrito }) {
               <ProductCard
                 product={product}
                 headingLevel={2}
-                onSelect={onVerDetalle}
+                onSelect={(id) => navigate(`/productos/${id}`)}
                 onAddToCart={onAgregarAlCarrito}
               />
             </li>

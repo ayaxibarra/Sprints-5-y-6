@@ -1,53 +1,18 @@
-import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getProductById } from "../services/productService";
+import { useProduct } from "../hooks/useProduct.js";
+import { resolveImageSrc } from "../utils/imagen.js";
 
 function formatPrice(price) {
   return `$${Number(price).toLocaleString("es-AR")}`;
 }
 
-// Ya no recibimos 'id' ni 'onVolver' por props; solo la función del carrito.
+
 export default function ProductDetail({ onAgregarAlCarrito }) {
-  // 1. Extraemos el ID dinámico directamente desde la URL (ej: /productos/123)
+
   const { id } = useParams();
-  
-  // 2. Instanciamos el hook para manejar las redirecciones programáticas
   const navigate = useNavigate();
+  const {product, loading, error, retry } = useProduct(id);
 
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [attempt, setAttempt] = useState(0);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    setLoading(true);
-    setError(null);
-
-    // El ID capturado de la URL se inyecta directamente en la petición
-    getProductById(id)
-      .then((data) => {
-        if (!cancelled) setProduct(data);
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setProduct(null);
-          setError(err);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [id, attempt]);
-
-  const retry = () => setAttempt((n) => n + 1);
-
-  // 3. Reemplazamos la ejecución de la prop onVolver por la ruta estática '/productos'
   const backButton = (
     <button type="button" className="btn-secondary" onClick={() => navigate('/productos')}>
       Volver al catálogo
@@ -63,12 +28,16 @@ export default function ProductDetail({ onAgregarAlCarrito }) {
     );
   }
 
-  if (error) {
+  if (error|| !product) {
+    // "Reintentar" solo cuando tiene sentido (red caída, error del servidor).
+    // No aparece para producto inexistente o id inválido.
+    const reintentable = error ? error.reintentable !== false : false;
+    
     return (
       <div className="contenedor-producto estado-error" role="alert">
         <h1>Oops!</h1>
-        <p>{error.message}</p>
-        {!(error.status >= 400 && error.status < 500) && (
+        <p>{error? error.message : "El producto no existe o fue removido."}</p>
+        {reintentable && (
           <button type="button" className="btn-primary" onClick={retry}>
             Reintentar
           </button>
@@ -81,12 +50,13 @@ export default function ProductDetail({ onAgregarAlCarrito }) {
   const specs = Object.entries(product.specs || {}).filter(
     ([, valor]) => valor !== undefined && valor !== null && valor !== ""
   );
-
+  const imagen = resolveImageSrc(product.img);
+  
   return (
     <article className="contenedor-producto">
       <section className="seccion-imagen">
         <img
-          src={`${import.meta.env.BASE_URL}${product.img}`}
+          src={imagen}
           alt={product.name}
           className="product-image"
         />
