@@ -58,7 +58,7 @@ export function Home() {
                     {!cargando && !error && (
                         <ul id="productos-destacados" className="productos-grid">
                             {productosDestacados.map((producto) => (
-                                <li key={producto.id}>
+                                <li key={producto._id}>
                                     <ProductCard
                                         product={producto}
                                         onSelect={() => navigate(`/productos/${producto.id}`)}

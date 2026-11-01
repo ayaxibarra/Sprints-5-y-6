@@ -1,10 +1,22 @@
+import { useNavigate } from "react-router-dom";
+import ProductForm from "../components/ProductForm.jsx";
+import { createProduct } from "../services/productService.js";
+
 export default function CreateProduct() {
+  const navigate = useNavigate();
+
+  async function handleCreate(payload) {
+    await createProduct(payload);
+    navigate("/admin", {
+      state: { mensaje: "Producto creado correctamente." },
+    });
+  }
+
   return (
-    <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '3rem 1.25rem' }}>
-      <h1 className="seccion-titulo">Alta de Producto</h1>
-      <p style={{ textAlign: 'center' }}>
-        Aquí el equipo de la Parte 4 integrará el formulario de creación.
-      </p>
+    <section className="admin-productos">
+      <h1 className="seccion-titulo">Nuevo producto</h1>
+      <p className="admin-intro">Completá los datos para sumarlo al catálogo.</p>
+      <ProductForm onSubmit={handleCreate} submitLabel="Crear producto" />
     </section>
   );
 }
