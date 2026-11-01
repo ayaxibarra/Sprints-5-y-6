@@ -2,6 +2,9 @@
 
 Aplicación web integral para la exhibición, comercialización y gestión de muebles de diseño artesanal. El proyecto forma parte del desarrollo de los Sprints 5 y 6, implementando una arquitectura desacoplada full stack basada en el stack **MERN** (MongoDB, Express, React y Node.js) con un catálogo dinámico y un panel de administración con operaciones CRUD completas.
 
+> 🚀 **Sitio web en vivo (Frontend):** [https://incredible-seahorse-a143a5.netlify.app](https://incredible-seahorse-a143a5.netlify.app)  
+> 🔌 **API REST en vivo (Backend):** [https://sprints-5-y-6.onrender.com](https://sprints-5-y-6.onrender.com) (Salud: [`/api/health`](https://sprints-5-y-6.onrender.com/api/health) · Productos: [`/api/productos`](https://sprints-5-y-6.onrender.com/api/productos))
+
 ---
 
 ## 📋 Tabla de Contenidos
@@ -99,29 +102,29 @@ El proyecto implementa una arquitectura desacoplada cliente-servidor:
 ```
 
 ### Flujo de Datos y Transformación
-1. **Frontend Público**: Para mantener compatibilidad con las especificaciones visuales previas, las páginas públicas utilizan propiedades en inglés (`id`, `name`, `desc`, `price`, `img`), las cuales son transformadas desde los documentos de la API mediante la función adaptadora `aVistaPublica` (`frontend/src/utils/producto.js`).
+1. **Frontend Público**: Para mantener compatibilidad con las especificaciones visuales previas, las páginas públicas utilizan propiedades en inglés (`id`, `name`, `desc`, `price`, `img`), las cuales son transformadas desde los documentos de la API mediante la función adaptadora `aVistaPublica` (`client/src/utils/producto.js`).
 2. **Frontend Administrativo**: Las pantallas de administración (`AdminProductos`, `ProductForm`, `CreateProduct`, `EditProduct`) consumen directamente los nombres de campos en español definidos en el modelo Mongoose (`nombre`, `descripcion`, `precio`, `stock`, `imagenUrl`).
-3. **Servicio Centralizado**: Toda solicitud HTTP pasa por `frontend/src/services/productService.js`, garantizando control de errores, soporte para cancelación mediante `AbortController`, normalización de respuestas y validación de identificadores ObjectId antes de despachar peticiones.
+3. **Servicio Centralizado**: Toda solicitud HTTP pasa por `client/src/services/productService.js`, garantizando control de errores, soporte para cancelación mediante `AbortController`, normalización de respuestas y validación de identificadores ObjectId antes de despachar peticiones.
 
 ---
 
 ## 📂 Estructura del Proyecto
 
-El repositorio está organizado con el backend en la raíz y la aplicación cliente en la carpeta `frontend/`:
+El repositorio está organizado con el backend y el cliente en carpetas independientes:
 
-```
+```plaintext
 Sprints-5-y-6/
 ├── backend/                         # Servidor API REST (Node.js + Express)
 │   ├── config/                      # Conexión a MongoDB Atlas (db.js)
 │   ├── controllers/                 # Controladores CRUD de productos
 │   ├── models/                      # Esquema Mongoose (Product.js)
 │   ├── routes/                      # Enrutador Express (/api/productos)
-│   ├── .env                         # Variables de entorno locales
+│   ├── .env                         # Variables de entorno locales (no versionadas)
 │   ├── index.js                     # Punto de entrada del servidor
 │   └── package.json                 # Dependencias del servidor
 │
 ├── client/                          # Aplicación Frontend SPA (React 19 + Vite)
-│   ├── public/                      # Assets estáticos (imágenes, logos, íconos)
+│   ├── public/                      # Assets estáticos (imágenes, logos, íconos, _redirects)
 │   ├── src/
 │   │   ├── components/              # Componentes UI (Navbar, Footer, ProductForm, Cart)
 │   │   ├── hooks/                   # Custom Hooks (useProducts, useProduct)
@@ -130,12 +133,13 @@ Sprints-5-y-6/
 │   │   ├── utils/                   # Utilidades puras (carrito, precios, imágenes)
 │   │   ├── App.jsx                  # Enrutador principal y estado del carrito
 │   │   └── main.jsx                 # Montaje en el DOM
-│   ├── .env                         # Variables de entorno (VITE_API_URL)
+│   ├── .env                         # Variables de entorno locales (no versionadas)
+│   ├── .env.example                 # Plantilla de variables de entorno del cliente
 │   ├── index.html                   # HTML base de Vite
 │   └── package.json                 # Dependencias del cliente
 │
 ├── postman/                         # Colecciones, especificaciones y skills de Postman
-├── .gitignore                       # Exclusiones de control de versiones
+├── .gitignore                       # Exclusiones de Git (node_modules, .env, dist, etc.)
 └── README.md                        # Documentación principal del proyecto
 ```
 
@@ -224,10 +228,13 @@ MongoDB Compass es una herramienta gráfica oficial para explorar e interactuar 
 1. Accede al sitio oficial de [MongoDB Compass](https://www.mongodb.com/try/download/community).
 2. Selecciona la versión recomendada para tu sistema operativo (**Windows (64-bit)**) en formato ejecutable o instalador `.exe`.
 3. Ejecuta el archivo descargado y sigue los pasos del asistente de instalación.
-4. Selecciona Setup Type COmplete
-5. Tilda **Install MongoDB As a Service**
-6. Tilda **Install MongoDB Compass**
-7. Descargar mongosh aparte en su instalar o usando en powershell/cmd como administrador el comando "winget install MongoDB.Shell"
+4. Selecciona Setup Type **Complete**.
+5. Tilda **Install MongoDB As a Service**.
+6. Tilda **Install MongoDB Compass**.
+7. Descarga `mongosh` aparte mediante su instalador oficial o usando en PowerShell/CMD como administrador:
+   ```powershell
+   winget install MongoDB.Shell
+   ```
 8. Abre **MongoDB Compass** desde el menú de inicio.
 9. En la pantalla principal, copia la cadena de conexión URI proporcionada por tu clúster de MongoDB Atlas y pégala en el campo **New Connection**.
 10. Haz clic en el botón **Connect**.
@@ -236,38 +243,47 @@ MongoDB Compass es una herramienta gráfica oficial para explorar e interactuar 
 
 ## 🔐 Configuración de Variables de Entorno
 
-El proyecto requiere dos archivos `.env` independientes: uno en el **backend**  y otro en el **frontend** (`client/`).
-
 > [!WARNING]
-> Nunca compartas ni subas archivos `.env` a repositorios públicos como GitHub. Asegúrate de que estén incluidos en el `.gitignore`.
+> **¿Por qué los archivos `.env` están en `.gitignore`?**  
+> Por estándares de seguridad universales (OWASP y 12-Factor App), los archivos `.env` nunca deben subirse a GitHub, ya que contienen credenciales privadas (como usuario y contraseña de MongoDB Atlas). Si alguien clona este proyecto, debe crear sus archivos `.env` siguiendo las indicaciones a continuación.
 
-### 1. Backend (`.env` en backend)
-Crea un archivo llamado `.env` dentro del backend (`Sprints-5-y-6/backend/.env`):
+El proyecto requiere dos archivos `.env` independientes: uno en el **backend** y otro en el **cliente** (`client/`).
+
+### 1. Backend (`backend/.env`)
+Crea un archivo llamado `.env` dentro de la carpeta `backend/` (`Sprints-5-y-6/backend/.env`):
 
 ```env
-# Puerto en el que se ejecutará el servidor Express
+# Puerto en el que se ejecutará el servidor Express local
 PORT=3000
 
-# Cadena de conexión a tu clúster de MongoDB Atlas (reemplaza credenciales y clúster)
+# Cadena de conexión obligatoria a tu clúster de MongoDB Atlas (reemplaza credenciales y clúster)
 MONGODB_URI=mongodb+srv://<USUARIO>:<PASSWORD>@<TU-CLUSTER>.mongodb.net/<NOMBRE_DB>?retryWrites=true&w=majority
 
-# URL del cliente frontend para la política de CORS (opcional)
+# URL permitida por CORS (origen del frontend local o de producción)
 FRONTEND_URL=http://localhost:5173
 ```
 
 - `PORT`: Puerto de escucha local (por defecto `3000`).
 - `MONGODB_URI`: Cadena obligatoria de conexión a MongoDB Atlas. Si no se define, el backend no iniciará.
-- `FRONTEND_URL`: Origen permitido para solicitudes web del frontend.
+- `FRONTEND_URL`: Origen permitido para solicitudes web del frontend (en producción en Render se configura como `https://incredible-seahorse-a143a5.netlify.app`).
 
-### 2. Frontend (`frontend/.env`)
-Verifica o crea el archivo `client/.env` (puedes tomar como base `client/.env.example`):
+### 2. Frontend (`client/.env`)
+Crea un archivo llamado `.env` dentro de la carpeta `client/` (`Sprints-5-y-6/client/.env`). Tienes dos alternativas según lo que desees hacer:
 
+#### Opción A: Conectar con tu Backend Local (Desarrollo completo)
+Si vas a levantar el servidor Express en tu máquina en el puerto 3000:
 ```env
-# URL base de la API Express (sin barra final ni /api)
 VITE_API_URL=http://localhost:3000
 ```
 
-- `VITE_API_URL`: Dirección donde se ejecuta el backend. El servicio concatena automáticamente `/api/productos` y automáticamente se abre en localhost:5173.
+#### Opción B: Conectar directamente con la API en Producción (Render)
+Si solo quieres probar el cliente frontend sin tener que levantar el backend local ni configurar credenciales de MongoDB:
+```env
+VITE_API_URL=https://sprints-5-y-6.onrender.com
+```
+
+> [!TIP]
+> `VITE_API_URL` se debe colocar **sin barra `/` al final** y **sin `/api`**, ya que el servicio `productService.js` añade automáticamente `/api/productos`.
 
 ---
 
@@ -277,16 +293,15 @@ Para levantar el proyecto en un entorno local de desarrollo, es fundamental segu
 
 ### Terminal 1 — Backend (Servidor de API)
 
-1. Abre una terminal y dirígete al backend del repositorio:
+1. Abre una terminal y dirígete a la carpeta `backend`:
    ```bash
-   cd Sprints-5-y-6
-   cd backend
+   cd Sprints-5-y-6/backend
    ```
 2. Instala las dependencias del backend:
    ```bash
    npm install
    ```
-3. Verifica que el archivo `.env` en el back contenga tu variable `MONGODB_URI` válida.
+3. Verifica que el archivo `backend/.env` contenga tu variable `MONGODB_URI` válida.
 4. Inicia el servidor en modo desarrollo:
    ```bash
    npm run dev
@@ -312,18 +327,19 @@ Para levantar el proyecto en un entorno local de desarrollo, es fundamental segu
    ```bash
    npm install
    ```
-3. Inicia el servidor de desarrollo de Vite:
+3. Verifica que `client/.env` contenga `VITE_API_URL=http://localhost:3000`.
+4. Inicia el servidor de desarrollo de Vite:
    ```bash
    npm run dev
    ```
-4. **Verificación de éxito:** La consola indicará que Vite está listo:
+5. **Verificación de éxito:** La consola indicará que Vite está listo:
    ```
      VITE v8.3.5  ready in ... ms
 
      ➜  Local:   http://localhost:5173/
      ➜  Network: use --host to expose
    ```
-5. Abre en tu navegador `http://localhost:5173/` para comenzar a interactuar con la tienda.
+6. Abre en tu navegador `http://localhost:5173/` para comenzar a interactuar con la tienda.
 
 > [!IMPORTANT]
 > Recuerda mantener **ambas terminales en ejecución simultánea**. Si detienes la terminal del backend, el frontend mostrará mensajes de error de conexión.
@@ -340,21 +356,23 @@ Para verificar la persistencia y manipulación de datos desde la interfaz de Mon
 4. Haz clic sobre la colección **`products`** (nombre generado automáticamente por Mongoose a partir del modelo `Product`).
 5. En la pestaña **Documents**, podrás ver todos los productos guardados.
 6. Realiza una prueba desde la aplicación:
-   - Dirígete en el navegador a `http://localhost:5173/admin/crear-producto`.
+   - Dirígete en el navegador a `/admin/crear-producto` (en local `http://localhost:5173/admin/crear-producto` o en producción en `https://incredible-seahorse-a143a5.netlify.app/admin/crear-producto`).
    - Completa el formulario y presiona **Crear producto**.
    - En MongoDB Compass, pulsa el botón **Refresh (ícono de recarga)** y confirma que el nuevo documento aparece con su `_id` generado.
    - De igual manera, prueba editar o eliminar registros y verifica los cambios en Compass.
-   - También puedes utilizar Postman para probar los métodos GET / POST / PUT / DELETE colocando http://localhost:3000/api/productos
+   - También puedes utilizar Postman para probar los métodos `GET` / `POST` / `PUT` / `DELETE` probando tanto en `http://localhost:3000/api/productos` como en la URL de producción `https://sprints-5-y-6.onrender.com/api/productos`.
 
 ---
 
 ## 🌐 Estado del Despliegue
 
-| Componente | Plataforma Sugerida | Estado Actual | Observaciones |
-| :--- | :--- | :--- | :--- |
-| **Frontend** | Vercel / Netlify | 🟡 **Pendiente** | No existen archivos de configuración (`vercel.json` o `netlify.toml`). El build local (`npm run build`) compila con éxito. |
-| **Backend** | Render / Railway | 🟡 **Pendiente** | No se encontraron archivos de infraestructura (`render.yaml` o `Procfile`). El servidor se encuentra listo para despliegue en contenedores o Node.js runtime. |
-| **Base de Datos** | MongoDB Atlas | 🟢 **Conectable** | Preparado mediante Mongoose y variable de entorno `MONGODB_URI`. |
+El proyecto se encuentra **desplegado y en producción**:
+
+| Componente | Plataforma | Estado | Enlace en Vivo | Observaciones |
+| :--- | :--- | :---: | :--- | :--- |
+| **Frontend** | **Netlify** | 🟢 **Activo** | [https://incredible-seahorse-a143a5.netlify.app](https://incredible-seahorse-a143a5.netlify.app) | Single Page Application (React 19 + Vite) con redirecciones SPA configuradas (`_redirects`). |
+| **Backend** | **Render** | 🟢 **Activo** | [https://sprints-5-y-6.onrender.com](https://sprints-5-y-6.onrender.com) | Web Service en Node.js + Express conectado a MongoDB Atlas. Ruta de salud: [`/api/health`](https://sprints-5-y-6.onrender.com/api/health). |
+| **Base de Datos** | **MongoDB Atlas** | 🟢 **Conectado** | Nube (Atlas Cluster) | Persistencia de datos en la nube con acceso restringido y seguro mediante `MONGODB_URI`. |
 
 ---
 
